@@ -57,7 +57,8 @@ public class Home extends AppCompatActivity {
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
+//              IF it fails to update on Firebase
+                Toast.makeText(getApplicationContext(), "Failed to update", Toast.LENGTH_SHORT).show();
             }
         });
         /*
