@@ -1,7 +1,10 @@
 package fireweather.example.com;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +19,8 @@ import com.firebase.client.ValueEventListener;
 
 public class Home extends AppCompatActivity {
     private Firebase reference;
+    private ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,17 +53,13 @@ public class Home extends AppCompatActivity {
                 * */
                 String newCondition = (String) dataSnapshot.getValue();
                 condition.setText(newCondition);
-
-                /*
-                * Short Toast for notification
-                * */
+//              Short Toast for notification
                 Toast.makeText(getApplicationContext(), "Weather has changed", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onCancelled(FirebaseError firebaseError) {
 //              IF it fails to update on Firebase
-                Toast.makeText(getApplicationContext(), "Failed to update", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Failed to update. Check connection!!", Toast.LENGTH_SHORT).show();
             }
         });
         /*
@@ -67,13 +68,28 @@ public class Home extends AppCompatActivity {
         sunny.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                reference.setValue("Sunny");
+                // test for connection
+                if (cm.getActiveNetworkInfo() != null
+                        && cm.getActiveNetworkInfo().isAvailable()
+                        && cm.getActiveNetworkInfo().isConnected()) {
+                    reference.setValue("Sunny");
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Failed to update. Check connection!!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         rainy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                reference.setValue("Rainy");
+                if (cm.getActiveNetworkInfo()!=null
+                        && cm.getActiveNetworkInfo().isAvailable()
+                        && cm.getActiveNetworkInfo().isConnected()){
+                    reference.setValue("Rainy");
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Failed to update. Check connection!!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -91,12 +107,10 @@ public class Home extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }
