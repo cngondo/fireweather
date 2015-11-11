@@ -4,12 +4,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 public class Home extends AppCompatActivity {
+    private Firebase reference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +31,50 @@ public class Home extends AppCompatActivity {
         // Linked to the UI
         Button rainy = (Button)findViewById(R.id.btnRainy);
         Button sunny = (Button)findViewById(R.id.btnSunny);
-        TextView condition = (TextView)findViewById(R.id.tvCondition);
+        final TextView condition = (TextView)findViewById(R.id.tvCondition);
+        /*
+        * Initialize the firebase App
+        * The URL should point to the root node of your date that is stored in
+        * the JSON format
+        */
+        reference = new Firebase("https://weather254.firebaseio.com/Condition");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                /*
+                * This method enables you to change data on Firebase and it
+                * Automatically updates it on the app.
+                * Use typecasting to to "Set" to whatever data type you want
+                * */
+                String newCondition = (String) dataSnapshot.getValue();
+                condition.setText(newCondition);
+
+                /*
+                * Short Toast for notification
+                * */
+                Toast.makeText(getApplicationContext(), "Weather has changed", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+        /*
+        * Click listeners that change the values of the text view on click
+        * */
+        sunny.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reference.setValue("Sunny");
+            }
+        });
+        rainy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reference.setValue("Rainy");
+            }
+        });
     }
 
     @Override
